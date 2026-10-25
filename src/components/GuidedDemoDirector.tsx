@@ -444,7 +444,7 @@ export const GuidedDemoDirector: React.FC<GuidedDemoDirectorProps> = ({
       </div>
 
       {/* Subtle Lower-Third Written Instruction Overlay Card */}
-      <div className="absolute bottom-16 left-1/2 -translate-x-1/2 w-full max-w-[680px] px-4 pointer-events-auto">
+      <div className="absolute bottom-16 left-1/2 -translate-x-1/2 w-full max-w-[750px] px-4 pointer-events-auto">
         <div className="bg-[#142420]/92 backdrop-blur-md text-white rounded-2xl shadow-[0_14px_40px_rgba(10,20,18,0.28)] border border-white/15 overflow-hidden">
           <div className="px-4 py-2.5 flex items-center justify-between gap-4">
             <div className="flex items-start gap-3 min-w-0">
@@ -452,15 +452,15 @@ export const GuidedDemoDirector: React.FC<GuidedDemoDirectorProps> = ({
                 <ArgonPrismLogo className="w-4 h-4" accentColor="#2dd4bf" />
               </div>
               <div className="min-w-0">
-                <div className="flex items-center gap-2">
-                  <span className="text-[10px] font-mono uppercase tracking-wider px-1.5 py-0.5 rounded bg-[#2dd4bf]/20 text-[#5eead4] font-semibold">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="text-[10px] font-mono uppercase tracking-wider px-1.5 py-0.5 rounded bg-[#2dd4bf]/20 text-[#5eead4] font-semibold shrink-0 whitespace-nowrap">
                     {currentCaption.stepBadge}
                   </span>
-                  <span className="text-[13px] font-semibold text-white truncate">
+                  <span className="text-[12.5px] font-semibold text-white">
                     {currentCaption.title}
                   </span>
                 </div>
-                <p className="text-[11.5px] text-slate-200/90 mt-0.5 leading-snug">
+                <p className="text-[11px] text-slate-200/90 mt-0.5 leading-snug">
                   {currentCaption.instruction}
                 </p>
               </div>

@@ -322,7 +322,7 @@ Return JSON with:
     }
   }
 
-  const latencyMs = Math.round(performance.now() - startTime) + 420;
+  const latencyMs = Math.round(performance.now() - startTime);
   const simInteractionId = `argon-loop-v${nextIteration}-${Date.now().toString(36)}`;
 
   onLog?.({
@@ -335,8 +335,7 @@ Return JSON with:
     previousInteractionId: game.spec.interactionId,
     latencyMs,
     status: 'fallback_simulated',
-    summary: `Render → Watch → Critique → Fix Loop (v${nextIteration}) patched 3D scene (${scoreBefore}/100 → ${scoreAfter}/100).`,
-    tokensUsed: 3640,
+    summary: `Offline fallback (no API response): Render → Watch → Critique → Fix Loop (v${nextIteration}) applied preset patch.`,
   });
 
   return {

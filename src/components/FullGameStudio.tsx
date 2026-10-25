@@ -43,7 +43,7 @@ interface FullGameStudioProps {
   onOpenEvalSuite: () => void;
   onLog: (entry: InteractionLogEntry) => void;
   externalCameraMode?: CameraPerspective;
-  externalViewMode?: 'play_native' | 'unity_studio' | 'agent_sandbox' | 'code_inspector';
+  externalViewMode?: 'play_native' | 'generated_demo' | 'unity_studio' | 'agent_sandbox' | 'code_inspector';
   autoBotEnabled?: boolean;
 }
 
@@ -60,7 +60,7 @@ export const FullGameStudio: React.FC<FullGameStudioProps> = ({
   autoBotEnabled = false,
 }) => {
   const [viewMode, setViewMode] = useState<
-    'play_native' | 'unity_studio' | 'agent_sandbox' | 'code_inspector'
+    'play_native' | 'generated_demo' | 'unity_studio' | 'agent_sandbox' | 'code_inspector'
   >('play_native');
   const [activeCamera, setActiveCamera] = useState<CameraPerspective>(
     game.spec.selectedCameraMode
@@ -257,6 +257,12 @@ export const FullGameStudio: React.FC<FullGameStudioProps> = ({
             <span>Play 3D</span>
           </button>
           <button
+            onClick={() => setViewMode('generated_demo')}
+            className={`px-2.5 py-1 rounded-lg font-medium transition cursor-pointer ${viewMode === 'generated_demo' ? 'bg-[var(--studio-panel)] text-[var(--studio-text)]' : 'text-[var(--studio-muted)]'}`}
+          >
+            Generated Demo
+          </button>
+          <button
             onClick={() => setViewMode('unity_studio')}
             className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg font-medium transition cursor-pointer ${
               viewMode === 'unity_studio'
@@ -293,6 +299,14 @@ export const FullGameStudio: React.FC<FullGameStudioProps> = ({
 
         {/* Right Actions */}
         <div className="flex items-center gap-2 shrink-0">
+          {viewMode === 'generated_demo' && (
+            <iframe
+              title="Generated playable game demo"
+              srcDoc={game.standaloneHtmlCode}
+              sandbox="allow-scripts"
+              className="w-full h-full border-0 rounded-xl bg-black"
+            />
+          )}
           {viewMode === 'play_native' && (
             <div className="hidden lg:flex items-center gap-1 bg-[var(--studio-muted-bg)] p-1 rounded-xl border border-[var(--studio-border)] text-[10px]">
               {(

@@ -641,7 +641,12 @@ export async function synthesizeFull3DGame(
     try {
       const requestPayload: any = {
         model: 'gemini-4-argon',
-        input: `Based on the 2D Figma scene "${scene.title}" and the inferred player specification "${spec.playerArchetype}" (Camera: ${spec.selectedCameraMode}, Win Condition: ${spec.winCondition}), synthesize fine-tuned 3D level enhancements, custom shader/lighting rules, and game title metadata.`,
+        input: `Create a complete playable, visually polished Three.js game demo from this scene and inferred player specification.
+Scene: ${JSON.stringify(scene)}
+Player specification: ${JSON.stringify(spec)}
+Return gameTitle, gameSubtitle, announcerLine, and standaloneHtmlCode containing a complete HTML document (no markdown fences or placeholders).
+Use procedural geometry and materials, a coherent palette, atmospheric lighting, depth, animated feedback, and a readable HUD. Implement the inferred mechanics, camera, tuned physics, collisions, win/lose states, and restart. Preserve the semantic layout and make the objective reachable.
+Use a module script importing * as THREE from https://cdn.jsdelivr.net/npm/three@0.174.0/build/three.module.js. Use new THREE.Scene and new THREE.WebGLRenderer, requestAnimationFrame with clamped delta time, resize handling, and keydown/keyup controls using event.code (WASD/arrows and Space). Show controls and a click-to-focus start overlay. Run inside a sandboxed iframe without same-origin access: do not use parent access, storage, credentials, external assets, or pointer lock. Only the pinned Three.js module may require network access.`,
         generation_config: {
           thinking_level: thinkingLevel,
           max_output_tokens: 16384,
@@ -654,9 +659,10 @@ export async function synthesizeFull3DGame(
             properties: {
               gameTitle: { type: 'string' },
               gameSubtitle: { type: 'string' },
+              standaloneHtmlCode: { type: 'string' },
               announcerLine: { type: 'string' },
             },
-            required: ['gameTitle', 'gameSubtitle', 'announcerLine'],
+            required: ['gameTitle', 'gameSubtitle', 'announcerLine', 'standaloneHtmlCode'],
           },
         },
       };
@@ -681,14 +687,15 @@ export async function synthesizeFull3DGame(
         };
       }
 
-      standaloneHtmlCode = buildStandaloneThreeJsGameHtml(
-        {
-          ...scene,
-          title: parsed.gameTitle || scene.title,
-        },
-        spec,
-        `gemini-4-argon (thinking: ${thinkingLevel})`
-      );
+      const generatedHtml = parsed.standaloneHtmlCode;
+      // Structural screening only; runtime playability still needs a playtest.
+      if (typeof generatedHtml !== 'string' ||
+          !/<html[\s>]/i.test(generatedHtml) || !/<\/html>/i.test(generatedHtml) ||
+          !/<script[\s>]/i.test(generatedHtml) ||
+          !generatedHtml.includes('requestAnimationFrame')) {
+        throw new Error('Model returned incomplete game HTML');
+      }
+      standaloneHtmlCode = generatedHtml;
 
       onLog?.({
         id: `log-${Date.now()}`,

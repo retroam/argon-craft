@@ -740,7 +740,7 @@ export const FigmaCanvasStudio: React.FC<FigmaCanvasStudioProps> = ({
           }`}
         >
           <StageBlueprintIcon className="w-3.5 h-3.5" />
-          <span>2.5D Figma Blueprint</span>
+          <span>2.5D Stage Blueprint</span>
         </button>
         <button
           onClick={() => setEditorViewportMode('unity_3d')}
