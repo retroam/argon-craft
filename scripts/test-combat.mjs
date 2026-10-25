@@ -1,0 +1,17 @@
+import ts from 'typescript';
+import { readFileSync } from 'node:fs';
+import assert from 'node:assert/strict';
+const source = ts.transpileModule(readFileSync('src/fighter/combat.ts', 'utf8'), { compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.ES2022 } }).outputText;
+const { createFight, attack, stepFight, moveFighter, profile } = await import(`data:text/javascript;base64,${Buffer.from(source).toString('base64')}`);
+const advance = (fight, seconds, training = false) => { for (let t=0;t<seconds;t+=.01) stepFight(fight,.01,training); };
+let f=createFight(); f.fighters[1].x=.8; attack(f,0,'jab'); advance(f,.2); assert.equal(f.fighters[1].hp,92); advance(f,.1); assert.equal(f.fighters[1].hp,92,'one hit per attack');
+f=createFight(); f.fighters[1].guard=true; attack(f,0,'kick'); advance(f,.3); assert.equal(f.fighters[1].hp,99,'guard reduces damage');
+f=createFight(); f.fighters[1].z=4; attack(f,0,'kick'); advance(f,.3); assert.equal(f.fighters[1].hp,100,'depth changes hit range');
+f=createFight(); f.fighters[1].x=.8; attack(f,0,'launcher'); advance(f,.4); assert.ok(f.fighters[1].air>0); assert.equal(f.fighters[1].hp,80);
+f=createFight(); f.fighters[1].hp=10; attack(f,0,'kick'); advance(f,.3); assert.equal(f.result,'YOU WIN'); assert.equal(attack(f,1,'jab'),false);
+f=createFight(1); f.fighters[0].hp=80; advance(f,1.1); assert.equal(f.result,'CPU WINS');
+f=createFight(1); advance(f,1.1); assert.equal(f.result,'DRAW');
+f=createFight(1); f.fighters[1].hp=1; attack(f,0,'kick'); advance(f,1.1,true); assert.equal(f.fighters[1].hp,1); assert.equal(f.result,'PROBE COMPLETE');
+f=createFight(); moveFighter(f,0,-1,-1,100); assert.equal(f.fighters[0].x,-6.5); assert.equal(f.fighters[0].z,-4);
+assert.equal(profile(f.stats).name,'Balanced fighter'); f.stats.blocks=3; assert.equal(profile(f.stats).name,'Counter striker');
+console.log('Combat checks passed: damage, hit timing, guard, sidestep, launch, KO, timeout, draw, training survival, boundaries, profiles.');

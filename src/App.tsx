@@ -401,6 +401,7 @@ export default function App() {
 
   return (
     <div className="h-screen w-screen overflow-hidden bg-[var(--studio-backdrop)] text-[var(--studio-text)] transition-colors duration-200">
+      <a href="?game=iron-circuit" className="fixed bottom-4 left-4 z-50 rounded-lg bg-slate-950 text-teal-200 px-4 py-3 text-xs font-bold shadow-xl border border-teal-500/40">Play Iron Circuit · 3D Fighter ↗</a>
       <GuidedDemoDirector
         isActive={isDemoActive}
         onStop={() => {

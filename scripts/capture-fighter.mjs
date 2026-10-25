@@ -1,0 +1,46 @@
+// Start Vite first. Uses an installed Playwright package or PLAYWRIGHT_MODULE path.
+import { mkdir } from 'node:fs/promises';
+import assert from 'node:assert/strict';
+const { chromium } = await import(process.env.PLAYWRIGHT_MODULE || 'playwright');
+const baseUrl = process.env.BASE_URL || 'http://127.0.0.1:3000';
+const output = process.env.CAPTURE_DIR || '/tmp/iron-circuit-frames';
+await mkdir(output,{recursive:true});
+const browser = await chromium.launch({channel:'chrome',headless:true});
+const page=await browser.newPage({viewport:{width:1280,height:840},deviceScaleFactor:1});
+const errors=[];page.on('pageerror',e=>errors.push(e.message));
+await page.goto(`${baseUrl}/?game=iron-circuit`);
+await page.locator('canvas').waitFor();
+let index=0, recording=true;
+const capture=(async()=>{while(recording){await page.screenshot({path:`${output}/${String(index++).padStart(5,'0')}.png`});await page.waitForTimeout(125);}})();
+try {
+  await page.waitForTimeout(1600);
+  await page.getByRole('button',{name:'Run combat probe'}).click();
+  await page.keyboard.down('d');await page.waitForTimeout(250);await page.keyboard.up('d');
+  await page.keyboard.down('j');await page.waitForTimeout(2800);await page.keyboard.up('j');
+  await page.keyboard.down(' ');await page.waitForTimeout(2200);await page.keyboard.up(' ');
+  await page.keyboard.down('w');await page.waitForTimeout(350);await page.keyboard.up('w');
+  await page.keyboard.down('s');await page.waitForTimeout(350);await page.keyboard.up('s');
+  await page.keyboard.down('k');await page.waitForTimeout(4000);await page.keyboard.up('k');
+  await page.keyboard.down('l');await page.waitForTimeout(3000);await page.keyboard.up('l');
+  await page.getByRole('button',{name:'Build & play full match'}).waitFor({timeout:15000});
+  const attackCount=Number(await page.locator('.ic-stats b').first().innerText());assert.ok(attackCount>0,'probe records real inputs');
+  await page.waitForTimeout(2200);
+  await page.getByRole('button',{name:'Build & play full match'}).click();
+  await page.keyboard.down('d');await page.waitForTimeout(200);await page.keyboard.up('d');
+  await page.keyboard.down('k');
+  await page.getByRole('status').waitFor({timeout:65000});
+  await page.keyboard.up('k');
+  assert.match(await page.getByRole('status').innerText(),/YOU WIN|CPU WINS|DRAW/);
+  await page.waitForTimeout(2400);
+  recording=false;await capture;
+  await page.getByRole('button',{name:'Rematch'}).click();
+  assert.equal(await page.getByRole('status').count(),0);
+  assert.equal(await page.locator('.ic-hud small').first().innerText(),'100 HP • YOU');
+  await page.setViewportSize({width:390,height:844});
+  await page.waitForTimeout(300);
+  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true,'mobile has no horizontal overflow');
+  await page.screenshot({path:`${output}/mobile.png`,fullPage:true});
+  await page.goto(baseUrl);await page.getByRole('link',{name:/Play Iron Circuit/}).waitFor();
+  assert.deepEqual(errors,[]);
+  console.log(`Browser flow passed; ${index} frames captured to ${output}. Includes probe, profile, match result, rematch, mobile layout, studio link; no page errors.`);
+} finally {recording=false;await capture;await browser.close();}
