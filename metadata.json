@@ -1,0 +1,5 @@
+{
+  "name": "ArgonCraft 3D: Figma-to-Game Studio & Google Arsenal Eval Suite",
+  "description": "Design 2D layouts in a Figma-style canvas, play short-lived 3D mechanic micro-demos that observe human gameplay telemetry to infer latent specifications, synthesize full 3D games with Gemini 4 Argon, and benchmark the Google model arsenal.",
+  "requestFramePermissions": []
+}
